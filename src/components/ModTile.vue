@@ -1,46 +1,67 @@
 <script lang="ts">
 import { getJson } from '@/util.ts'
-import { modsDir } from '@/pages/Mods/mods.ts'
+import { modsDir, type ModInfo, type ModManifest } from '@/pages/Mods/mods.ts'
 import { ref } from 'vue';
 
 export default {
     name: 'mod-item',
     props: ['src'],
-    async setup(props, ctx) {
+    methods: {
+        replaceImg(img: HTMLImageElement) {
+            this.loadingImg = false
+            img.remove()
+        },
+        replaceInfo(manifest: ModManifest) {
+            this.info = {
+                title: manifest.name,
+                short: manifest.short_description,
+                desc: manifest.description,
+                source: manifest.source,
+                downloads: manifest.downloads
+            }
+        }
+    },
+    setup(props, ctx) {
         const modDir = `${modsDir}/${props.src}`
-        const info = await getJson(`${modDir}/manifest.json`)
+        const imgSrc = `${modDir}/icon.png`
 
         return {
-            title: ref(info.name),
-            img: ref(`${modDir}/icon.png`),
-            short: ref(info.short_description),
-            desc: ref(info.description),
-            
-            source: ref(info.source),
-            downloads: ref(info.downloads)
+            loadingImg: ref<boolean>(true),
+            imgSrc: ref<string>(imgSrc),
+
+            info: ref<ModInfo>()
         }
+    },
+    created() {
+        const modDir = `${modsDir}/${this.src}`
+
+        getJson(`${modDir}/manifest.json`)
+        .then(this.replaceInfo)
+
+        const img = new Image()
+        img.onload = () => this.replaceImg(img)
+        img.src = this.imgSrc
     }
 }
 </script>
 
 <template>
-<Suspense>
     <div class="mod-item">
         <div class="mod-item-body">
-            <img :src="img">
+            <div v-if="loadingImg" class="mod-img-placeholder"></div>
+            <img v-else :src="imgSrc">
             <div class="mod-item-head">
-                <h2>{{ title }}</h2>
-                <p>{{ short }}</p>
+                <h2>{{ info?.title ?? "Loading..." }}</h2>
+                <p>{{ info?.short ?? "Loading..." }}</p>
             </div>
         </div>
         <div class="button-row">
-            <a :href="source" v-if="source">
+            <a v-if="info?.source" :href="info.source">
                 <p>Source</p>
             </a>
-            <a :href="downloads" v-if="downloads">
+            <a v-if="info?.downloads" :href="info.downloads">
                 <p>Downloads</p>
             </a>
         </div>
     </div>
-</Suspense>
 </template>

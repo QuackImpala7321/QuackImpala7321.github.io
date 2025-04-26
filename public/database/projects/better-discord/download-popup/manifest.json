@@ -1,0 +1,5 @@
+{
+    "name": "DownloadPopup",
+    "short_description": "Download popup like from Google Chrome",
+    "description": "Clicking on a download link in Discord will show the download in a little popup window instead of opening up your browser."
+}

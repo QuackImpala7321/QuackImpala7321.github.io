@@ -2,6 +2,9 @@
 import Navbar from '@/components/Navbar.vue'
 import Newsletter from '@/components/Newsletter.vue';
 import NewsSignup from '@/components/NewsSignup.vue';
+import { injectHead } from '@/inject-meta';
+
+injectHead("Quack's Portfolio")
 </script>
 
 <template>

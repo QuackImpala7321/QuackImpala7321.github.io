@@ -1,34 +1,30 @@
-<script lang="js">
+<script lang="ts">
 import { getJson } from '@/util';
-import { ssrRenderComponent } from 'vue/server-renderer';
 import NewsItem from './NewsItem.vue';
+import { ref } from 'vue';
 
 export default {
-    async mounted() {
-        const entries = await getJson("/database/newsletter/entries.json")
-        for (let i = 0; i < entries.length; i++) {
-            const entry = entries[i]
-
-            const buffer = await ssrRenderComponent(NewsItem, { src: entry })
-            const doc = document.createElement('html')
-            doc.innerHTML = buffer[0]
-            const item = doc.querySelector('.news-item')
-            this.$el.appendChild(item)
-
-            if (i < entries.length - 1) {
-                const div = document.createElement('div')
-                div.className = 'hr-wrapper'
-                const hr = document.createElement('hr')
-                div.appendChild(hr)
-                this.$el.appendChild(div)
-            }
+    components: {
+        NewsItem
+    },
+    setup() {
+        return {
+            entries: ref<string[]>([])
         }
     },
+    created() {
+        getJson("/database/newsletter/entries.json")
+        .then(entries => this.entries = entries)
+    }
 }
 </script>
 
 <template>
-<Suspense>
-    <div class="newsletter"></div>
-</Suspense>
+    <div v-if="entries.length > 1" class="newsletter">
+        <NewsItem v-for="entry of entries.slice(0, -1)" :src="entry" :last="false" />
+        <NewsItem :src="entries[entries.length - 1]" :last="true" />
+    </div>
+    <div v-else-if="entries.length > 0" class="newsletter">
+        <NewsItem :src="entries[0]" :last="true" />
+    </div>
 </template>

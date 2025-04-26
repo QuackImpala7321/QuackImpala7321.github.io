@@ -9,9 +9,9 @@
 				<li>
 					<a href="mods">Mods</a>
 				</li>
-				<li>
+				<!-- <li>
 					<a href="#">Addons</a>
-				</li>
+				</li> -->
 			</ol>
 		</header>
 	</div>

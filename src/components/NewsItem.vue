@@ -1,4 +1,4 @@
-<script lang="js">
+<script lang="ts">
 import { getJson } from '@/util';
 import { ref } from 'vue';
 
@@ -18,35 +18,40 @@ const months = [
 ]
 
 export default {
-    props: [ 'src' ],
-    slots: {
-        monga: 'monga'
-    },
-    async setup(props, ctx) {
-        const json = await getJson(`/database/newsletter/${props.src}`)
-        const filename = props.src.substring(0, props.src.lastIndexOf('.'))
+    props: ['src', 'last'],
+    methods: {
+        replaceInfo(filename: any, info: any) {
+            const [ date, time ] = filename.split(' ')
+            const [ month, day, year ] = date.split('-')
+            const [ hour, minute ] = time.split('-')
 
-        const [ date, time ] = filename.split(' ')
-        const [ month, day, year ] = date.split('-')
-        const [ hour, minute ] = time.split('-')
+            const monthName = months[month - 1]
+            const hour12 = hour > 12 ? hour - 12 : hour == 0 ? 12 : hour
 
-        const monthName = months[month - 1]
-        const hour12 = hour > 12 ? hour - 12 : hour == 0 ? 12 : hour
+            const body = info.body instanceof Array ? info.body.join('<br>') : info.body
 
-        const body = json.body instanceof Array ? json.body.join('<br>') : json.body
-
-        return {
-            title: ref(json.title),
-            body: ref(body),
-            
-            timestamp: ref(`${monthName} ${day}, ${year} at ${hour12}:${minute}${hour > 12 ? 'pm':'am'}`)
+            this.title = info.title
+            this.body = body
+            this.timestamp = `${monthName} ${day}, ${year} at ${hour12}:${minute}${hour > 12 ? 'pm':'am'}`
         }
     },
+    setup(props, ctx) {
+        return {
+            title: ref<string>(),
+            body: ref<string>(),
+            
+            timestamp: ref<string>()
+        }
+    },
+    created() {
+        const filename = this.src.substring(0, this.src.lastIndexOf('.'))
+        getJson(`/database/newsletter/${this.src}`)
+        .then((info) => this.replaceInfo(filename, info))
+    }
 }
 </script>
 
 <template>
-<Suspense>
     <div class="news-item">
         <h1>{{ title }}</h1>
         <div class="news-timestamp">
@@ -54,5 +59,7 @@ export default {
         </div>
         <p class="news-body" v-html="body"></p>
     </div>
-</Suspense>
+    <div v-if="!last" class="hr-wrapper">
+        <hr />
+    </div>
 </template>
