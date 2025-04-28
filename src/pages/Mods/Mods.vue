@@ -8,8 +8,10 @@ injectHead("Mods - Quack's Portfolio")
 
 <template>
   <Navbar />
-  <div class="main-contents">
-		<h1>Mods</h1>
+  <div class="main-contents" style="margin-left: 400px; margin-right: 400px;">
+    <div class="main-contents-header">
+      <h1>Mods</h1>
+    </div>
     <Suspense>
       <ItemContainer dir="mods"/>
     </Suspense>

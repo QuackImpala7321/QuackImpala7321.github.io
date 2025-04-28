@@ -10,7 +10,9 @@ injectHead("Quack's Portfolio")
 <template>
   <Navbar />
   <div class="main-contents" style="margin-left: 400px; margin-right: 400px;">
-    <h1>Yep this is my website</h1>
+    <div class="main-contents-header">
+      <h1>Yep this is my website</h1>
+    </div>
     <NewsSignup />
     <Newsletter />
   </div>
